@@ -166,9 +166,9 @@ def uploader(request):
             groupedtree.write('groupedxml.xml')
 
             # Отправка данных на выбранный пользователем сервер
-            #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-            #          'ftpxml.xml')
-            #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-             #         'groupedxml.xml')
+            ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+                      'ftpxml.xml')
+            ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+                      'groupedxml.xml')
 
             return redirect('/filesgetter/2')
