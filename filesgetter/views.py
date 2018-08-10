@@ -32,7 +32,7 @@ class CSVPARSER:
                                           'update_date': datetime.date(datetime.now())}) for line in
              list(csv.reader(file))[1:]]
 
-
+# Класс для сшивания двух csv и xml
 class Mergers(CSVPARSER):
     def __init__(self):
         super().__init__()
