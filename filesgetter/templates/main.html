@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>MainForm</title>
+</head>
+<body>
+<form action="/filesgetter/3/" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send" />
+</form>
+</body>
+</html>
