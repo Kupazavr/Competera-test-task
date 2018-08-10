@@ -165,7 +165,7 @@ def uploader(request):
             groupedtree = ET.ElementTree(grouped_root)
             groupedtree.write('groupedxml.xml')
 
-            # Отправка данных на выбранный пользователем сервер
+            # Отправка данных на выбранный пользователем сервер(не тестированно)
             ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
                       'ftpxml.xml')
             ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
