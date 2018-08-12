@@ -11,7 +11,7 @@ import ftplib
 
 
 # Create your views here.
-class CSVPARSER:
+class CSVParser:
     def __init__(self):
         self.article_list = []
         self.parameters_list = []
@@ -36,10 +36,10 @@ class CSVPARSER:
 class Mergers(CSVPARSER):
     def __init__(self):
         super().__init__()
-        self.Finallist = []
+        self.merged_list = []
 
     def merge_between_csvs(self):
-        [self.Finallist.append(second_dictionary) for second_dictionary in self.parameters_list for dictionary in
+        [self.merged_list.append(second_dictionary) for second_dictionary in self.parameters_list for dictionary in
          self.article_list if dictionary.get('article') == second_dictionary.get('article')]
 
     def merge_between_csv_and_xml(self):
@@ -52,7 +52,7 @@ class Mergers(CSVPARSER):
                                 'cost_price': int(float(item.find('%sprice' % googledir).text))
                                               - int(float(item.find('%sdelivery-cost' % googledir).text))}) for item
              in root.find('channel').findall('item') for dictionary
-             in self.Finallist if str(dictionary['article'])
+             in self.merged_list if str(dictionary['article'])
              == str(item.find('%sgtin' % googledir).text)]
 
 
@@ -137,7 +137,7 @@ def uploader(request):
             os.remove('media/' + csvfile1.name)
             os.remove('media/' + csvfile2.name)
             # Добавление/Обновление записей в БД
-            databasequerys(main_instance.Finallist)
+            databasequerys(main_instance.merged_list)
             # -------------------------------------------------2--------------------------------------------------------
             # Сырой запрос т.к им легче было провести проверку на разницу в ценах чем обрабатывать питоном
             prices = Parameters.objects.raw(
@@ -158,10 +158,10 @@ def uploader(request):
                 'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date')
             # Способа декодинга скандинавских символов так и не было найдено
             grouped_root = ET.Element('root')
-            for i in grouped_by_date:
-                date = ET.SubElement(grouped_root, str(i.creation_date))
-                for b in grouped_by_date_and_category:
-                    ET.SubElement(date, str(b.category)).text = str(b.count)
+            for record_date in grouped_by_date:
+                date = ET.SubElement(grouped_root, str(record_date.creation_date))
+                for record_category in grouped_by_date_and_category:
+                    ET.SubElement(date, str(record_category.category)).text = str(record_category.count)
             groupedtree = ET.ElementTree(grouped_root)
             groupedtree.write('groupedxml.xml')
 
