@@ -33,7 +33,7 @@ class CSVParser:
              list(csv.reader(file))[1:]]
 
 
-class Mergers(CSVPARSER):
+class Mergers(CSVParser):
     def __init__(self):
         super().__init__()
         self.merged_list = []
@@ -42,8 +42,8 @@ class Mergers(CSVPARSER):
         [self.merged_list.append(second_dictionary) for second_dictionary in self.parameters_list for dictionary in
          self.article_list if dictionary.get('article') == second_dictionary.get('article')]
 
-    def merge_between_csv_and_xml(self):
-        with open('test.xml', 'r', encoding='utf-8') as xmlfile:
+    def merge_between_csv_and_xml(self, filename):
+        with open(filename, 'r', encoding='utf-8') as xmlfile:
             root = ET.parse(xmlfile).getroot()
             googledir = '{http://base.google.com/ns/1.0}'
             [dictionary.update({'title': item.find('title').text,
@@ -56,8 +56,8 @@ class Mergers(CSVPARSER):
              == str(item.find('%sgtin' % googledir).text)]
 
 
-def xml_parser():
-    with open('test.xml', 'wb') as xmlfile:
+def xml_parser(filename):
+    with open(filename, 'wb') as xmlfile:
         xmlfile.write(requests.get('https://www.emma.dk/gshop.xml').content)
 
 
@@ -132,8 +132,8 @@ def uploader(request):
             main_instance.article_csv_parser('media/' + csvfile1.name)
             main_instance.csv_with_parameters_parser('media/' + csvfile2.name)
             main_instance.merge_between_csvs()
-            xml_parser()
-            main_instance.merge_between_csv_and_xml()
+            xml_parser('test.xml')
+            main_instance.merge_between_csv_and_xml('test.xml')
             os.remove('media/' + csvfile1.name)
             os.remove('media/' + csvfile2.name)
             # Добавление/Обновление записей в БД
