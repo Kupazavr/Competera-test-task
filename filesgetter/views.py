@@ -115,6 +115,7 @@ def templateview(request):
     form = UploadFileForm()
     return render(request, 'main.html', {'form': form})
 
+
 def uploader_first_task(request):
     # first of all was decided to process files from django cache memory, but then, when right methods for processing
     # csv files wasn't found, was chosen way to saving files to MEDIA with deleting after all
@@ -139,7 +140,8 @@ def uploader_first_task(request):
 def uploader_second_task(request):
     # Raw query cuz that's more easiest way for me to inspect on price difference
     prices = Parameters.objects.raw(
-        'SELECT article, title FROM filesgetter_parameters WHERE price-cost_price<price*0.05 AND price-cost_price>0 OR cost_price-price<price*0.05 AND cost_price-price>0')
+        'SELECT article, title FROM filesgetter_parameters WHERE price-cost_price<price*0.05 AND price-cost_price>0 '
+        'OR cost_price-price<price*0.05 AND cost_price-price>0')
 
     # creating xml report with items who has price difference in 5%
     prices_root = ET.Element('root')
@@ -151,9 +153,11 @@ def uploader_second_task(request):
 
     # grouping by date and category
     grouped_by_date_and_category = Parameters.objects.raw(
-        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date, category')
+        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters '
+        'GROUP BY creation_date, category')
     grouped_by_date = Parameters.objects.raw(
-        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date')
+        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters '
+        'GROUP BY creation_date')
     # Способа декодинга скандинавских символов так и не было найдено
     grouped_root = ET.Element('root')
     for record_date in grouped_by_date:
@@ -163,7 +167,7 @@ def uploader_second_task(request):
     groupedtree = ET.ElementTree(grouped_root)
     groupedtree.write('groupedxml.xml')
 
-    # sending data to a chosen by user server
+    # sending data to a chosen by user server(not tested)
     ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
               'ftpxml.xml')
     ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
@@ -176,6 +180,5 @@ def uploader(request):
         if form.is_valid():
             uploader_first_task(request)
             uploader_second_task(request)
-
 
             return redirect('/filesgetter/2')
