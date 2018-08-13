@@ -16,8 +16,8 @@ class CSVParser:
         self.article_list = []
         self.parameters_list = []
 
-    # Ничего необычного, просто 2 обработчика получаемых csv файлов
-    # list comprehension был выбран больше из-за компактности и скорости
+    # Nothing unusual, just 2 functions for handling csv files
+    # list comprehension was chosen because that is more shorter and faster
     def article_csv_parser(self, placement):
         with open(placement, 'r', encoding='utf-8') as file:
             [self.article_list.append({'article': ''.join(article)}) for article in csv.reader(file)]
@@ -62,10 +62,10 @@ def xml_parser(filename):
 
 
 def databasequerys(finallist):
-    # Проверка на нахождение записи в базе, и при нахождении - обновление ее
-    # Обработка исключений т.к не все записи полные ибо в выданном xml 10 несуществующих артиклев
+    # check on the availability in data base and if is available, updating it
+    # exception handling, since not every record is full because given xml has 10 nonexistent articles
     for item in finallist:
-        # Ужастные эксепшены т.к не находит в filesender.models.DoesNotExist такого исключения
+        # Terrible exceptions because can't to import exceptions from "filesender.models.DoesNotExist"
         try:
             try:
                 Parameters.objects.get(article='{article}'.format(**item))
@@ -103,7 +103,7 @@ def databasequerys(finallist):
                 param.save()
 
 
-#  fpt-sender с возможность указания адресса, логина и пароля от сервера
+# ftp-sender with a possibility of adding address, login and password from server
 def ftpsender(url, login, password, file):
     ftp = ftplib.FTP(url)
     ftp.login(login, password)
@@ -116,14 +116,14 @@ def templateview(request):
     return render(request, 'main.html', {'form': form})
 
 def uploader_first_task(request):
-    # Сначала был принято решение обрабатывать файлы на лету т.е в кэше джанго, но спустя время не было найдено
-    # Адекватных методов для разбора csv файла, по этому выбор пал на сохранение в MEDIA и последующем удалении
+    # first of all was decided to process files from django cache memory, but then, when right methods for processing
+    # csv files wasn't found, was chosen way to saving files to MEDIA with deleting after all
     csvfile1 = request.FILES['file']
     csvfile2 = request.FILES['file2']
     fs = FileSystemStorage()
     fs.save(csvfile1.name, csvfile1)
     fs.save(csvfile2.name, csvfile2)
-    # Просто создание экземпляра класса и запуск всех механизмов по порядку
+    # Just creating instance of class and running all mechanism one by one
     main_instance = Mergers()
     main_instance.article_csv_parser('media/' + csvfile1.name)
     main_instance.csv_with_parameters_parser('media/' + csvfile2.name)
@@ -132,16 +132,16 @@ def uploader_first_task(request):
     main_instance.merge_between_csv_and_xml('test.xml')
     os.remove('media/' + csvfile1.name)
     os.remove('media/' + csvfile2.name)
-    # Добавление/Обновление записей в БД
+    # Adding/Updating DB records
     databasequerys(main_instance.merged_list)
 
 
 def uploader_second_task(request):
-    # Сырой запрос т.к им легче было провести проверку на разницу в ценах чем обрабатывать питоном
+    # Raw query cuz that's more easiest way for me to inspect on price difference
     prices = Parameters.objects.raw(
         'SELECT article, title FROM filesgetter_parameters WHERE price-cost_price<price*0.05 AND price-cost_price>0 OR cost_price-price<price*0.05 AND cost_price-price>0')
 
-    # Создание отчета в формате xml
+    # creating xml report with items who has price difference in 5%
     prices_root = ET.Element('root')
     items = ET.SubElement(prices_root, 'items')
     for i in prices:
@@ -149,7 +149,7 @@ def uploader_second_task(request):
     tree = ET.ElementTree(prices_root)
     tree.write('ftpxml.xml')
 
-    # групировка по категориям и датам
+    # grouping by date and category
     grouped_by_date_and_category = Parameters.objects.raw(
         'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date, category')
     grouped_by_date = Parameters.objects.raw(
@@ -163,11 +163,11 @@ def uploader_second_task(request):
     groupedtree = ET.ElementTree(grouped_root)
     groupedtree.write('groupedxml.xml')
 
-    # Отправка данных на выбранный пользователем сервер
-    #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-     #         'ftpxml.xml')
-    #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-     #         'groupedxml.xml')
+    # sending data to a chosen by user server
+    ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+              'ftpxml.xml')
+    ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+              'groupedxml.xml')
 
 
 def uploader(request):
