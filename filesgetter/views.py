@@ -115,60 +115,67 @@ def templateview(request):
     form = UploadFileForm()
     return render(request, 'main.html', {'form': form})
 
+def uploader_first_task(request):
+    # Сначала был принято решение обрабатывать файлы на лету т.е в кэше джанго, но спустя время не было найдено
+    # Адекватных методов для разбора csv файла, по этому выбор пал на сохранение в MEDIA и последующем удалении
+    csvfile1 = request.FILES['file']
+    csvfile2 = request.FILES['file2']
+    fs = FileSystemStorage()
+    fs.save(csvfile1.name, csvfile1)
+    fs.save(csvfile2.name, csvfile2)
+    # Просто создание экземпляра класса и запуск всех механизмов по порядку
+    main_instance = Mergers()
+    main_instance.article_csv_parser('media/' + csvfile1.name)
+    main_instance.csv_with_parameters_parser('media/' + csvfile2.name)
+    main_instance.merge_between_csvs()
+    xml_parser('test.xml')
+    main_instance.merge_between_csv_and_xml('test.xml')
+    os.remove('media/' + csvfile1.name)
+    os.remove('media/' + csvfile2.name)
+    # Добавление/Обновление записей в БД
+    databasequerys(main_instance.merged_list)
+
+
+def uploader_second_task(request):
+    # Сырой запрос т.к им легче было провести проверку на разницу в ценах чем обрабатывать питоном
+    prices = Parameters.objects.raw(
+        'SELECT article, title FROM filesgetter_parameters WHERE price-cost_price<price*0.05 AND price-cost_price>0 OR cost_price-price<price*0.05 AND cost_price-price>0')
+
+    # Создание отчета в формате xml
+    prices_root = ET.Element('root')
+    items = ET.SubElement(prices_root, 'items')
+    for i in prices:
+        ET.SubElement(items, 'item').text = i.article
+    tree = ET.ElementTree(prices_root)
+    tree.write('ftpxml.xml')
+
+    # групировка по категориям и датам
+    grouped_by_date_and_category = Parameters.objects.raw(
+        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date, category')
+    grouped_by_date = Parameters.objects.raw(
+        'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date')
+    # Способа декодинга скандинавских символов так и не было найдено
+    grouped_root = ET.Element('root')
+    for record_date in grouped_by_date:
+        date = ET.SubElement(grouped_root, str(record_date.creation_date))
+        for record_category in grouped_by_date_and_category:
+            ET.SubElement(date, str(record_category.category)).text = str(record_category.count)
+    groupedtree = ET.ElementTree(grouped_root)
+    groupedtree.write('groupedxml.xml')
+
+    # Отправка данных на выбранный пользователем сервер
+    #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+     #         'ftpxml.xml')
+    #ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
+     #         'groupedxml.xml')
+
 
 def uploader(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # Сначала был принято решение обрабатывать файлы на лету т.е в кэше джанго, но спустя время не было найдено
-            # Адекватных методов для разбора csv файла, по этому выбор пал на сохранение в MEDIA и последующем удалении
-            csvfile1 = request.FILES['file']
-            csvfile2 = request.FILES['file2']
-            fs = FileSystemStorage()
-            fs.save(csvfile1.name, csvfile1)
-            fs.save(csvfile2.name, csvfile2)
-            # Просто создание экземпляра класса и запуск всех механизмов по порядку
-            main_instance = Mergers()
-            main_instance.article_csv_parser('media/' + csvfile1.name)
-            main_instance.csv_with_parameters_parser('media/' + csvfile2.name)
-            main_instance.merge_between_csvs()
-            xml_parser('test.xml')
-            main_instance.merge_between_csv_and_xml('test.xml')
-            os.remove('media/' + csvfile1.name)
-            os.remove('media/' + csvfile2.name)
-            # Добавление/Обновление записей в БД
-            databasequerys(main_instance.merged_list)
-            # -------------------------------------------------2--------------------------------------------------------
-            # Сырой запрос т.к им легче было провести проверку на разницу в ценах чем обрабатывать питоном
-            prices = Parameters.objects.raw(
-                'SELECT article, title FROM filesgetter_parameters WHERE price*0.05>price-cost_price OR -price*0.05<cost_price - price')
+            uploader_first_task(request)
+            uploader_second_task(request)
 
-            # Создание отчета в формате xml
-            prices_root = ET.Element('root')
-            items = ET.SubElement(prices_root, 'items')
-            for i in prices:
-                ET.SubElement(items, 'item').text = i.title
-            tree = ET.ElementTree(prices_root)
-            tree.write('ftpxml.xml')
-
-            # групировка по категориям и датам
-            grouped_by_date_and_category = Parameters.objects.raw(
-                'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date, category')
-            grouped_by_date = Parameters.objects.raw(
-                'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters GROUP BY creation_date')
-            # Способа декодинга скандинавских символов так и не было найдено
-            grouped_root = ET.Element('root')
-            for record_date in grouped_by_date:
-                date = ET.SubElement(grouped_root, str(record_date.creation_date))
-                for record_category in grouped_by_date_and_category:
-                    ET.SubElement(date, str(record_category.category)).text = str(record_category.count)
-            groupedtree = ET.ElementTree(grouped_root)
-            groupedtree.write('groupedxml.xml')
-
-            # Отправка данных на выбранный пользователем сервер
-            ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-                      'ftpxml.xml')
-            ftpsender(request.POST.get('ftpurl'), request.POST.get('ftplogin'), request.POST.get('ftppassword'),
-                      'groupedxml.xml')
 
             return redirect('/filesgetter/2')
