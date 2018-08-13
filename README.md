@@ -1,31 +1,27 @@
-﻿#	Тестовое Задание для competera
+﻿#	Test task for Competera
 <hr>
-	Приложение создано для обработки csv и xml файлов
-	с последующей записью в БД по заявленным требованиям
-	и отправкой отчетов по ftp
+	Application created for processing csv and xml files
+	with an addition records in DB as required and ftp-sending
 <hr>
-	Были выбраны только 2 не стандартных решения для реализации
-	1)Обработка полученых через форму csv не с помощью кэша,
-	а с сохранением на диск и последующим удалением после обработки.
-	2)Использование сырых запросов в некоторых случаях, т.к это было
-	быстрее и удобнее.
+	Only 2 non-standard solutions were selected.
+	1)Processing received csv-s by the form, not by cache, but with saving on disk
+	and then removing after all.
+	2)Using raw queries in some cases, cuz that was more easiest and faster.
 <hr>
-	Функционал разбит на 6 логических блока
-	1)Обработка CSV
-	2)Парсинг с xml
-	3)Слияние csv и xml
-	4)Запись в бд
-	5)Создание отчетов
-	6)Отправка по ftp
+	The Functional is divided into 6 logical blocks
+	1)CSV Processing
+	2)Xml Parsing
+	3)Merging between csv and xml
+	4)Making DB records
+	5)Reports creating
+	6)Ftp-sending
 <hr>
-	База sqlite3 была использована для упрощения переноса между пк
-	во время написания исходного кода
+	Sqlite3 was used for simplifying transfers between PC's during code writing
 <hr>
-	Путем дедуктивного мышления такие пункты как "себестоимость"
-	были определены лично мною по формуле (price-delivery_cost),
-	а такие как "цвет" и "акция" были проигнорированы для записи в БД,
-	но хранятся в словарях по ходу обработки файлов.
+	By the deductive thinking such paragraph as "cost-price" was identified by
+	me according to the formula (price-delivery_cost), and such as "color" and "event"
+	was ignored to recording into DB, but collected into dict-s.
 <hr>
-	Отправка в форме полностю зависима, т.е файл с артиклями нужно отправлять в 1 форме,
-	а с дополнительной информацией во 2.
+	Form sending is completely dependent, i.e file with articles should be sent
+	in first form, and with additional information in second.
 <hr>
