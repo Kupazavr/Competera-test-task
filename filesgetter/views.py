@@ -158,7 +158,7 @@ def uploader_second_task(request):
     grouped_by_date = Parameters.objects.raw(
         'SELECT article, creation_date, category, COUNT(title) as count FROM filesgetter_parameters '
         'GROUP BY creation_date')
-    # Способа декодинга скандинавских символов так и не было найдено
+    # Method for decoding Scandinavian characters was not found
     grouped_root = ET.Element('root')
     for record_date in grouped_by_date:
         date = ET.SubElement(grouped_root, str(record_date.creation_date))
