@@ -1,4 +1,5 @@
-﻿	TEST TASK FOR COMPETERA
+
+	TEST TASK FOR COMPETERA
 ------------------------------------------------------------------------------------------
 	Application created for processing csv and xml files
 	with an addition records in DB as required and ftp-sending
@@ -24,3 +25,4 @@
 ------------------------------------------------------------------------------------------
 	Form sending is completely dependent, i.e file with articles should be sent
 	in first form, and with additional information in second.
+
