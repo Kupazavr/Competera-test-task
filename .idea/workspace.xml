@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="46c1023f-64bb-4a7f-8ab3-0877333211f9" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/filesgetter/views.py" afterPath="$PROJECT_DIR$/filesgetter/views.py" />
+      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -29,8 +29,8 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/filesgetter/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="161" column="37" lean-forward="true" selection-start-line="161" selection-start-column="37" selection-end-line="161" selection-end-column="37" />
+            <state relative-caret-position="530">
+              <caret line="160" column="63" lean-forward="true" selection-start-line="160" selection-start-column="63" selection-end-line="160" selection-end-column="63" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
               </folding>
@@ -480,8 +480,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/filesgetter/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="161" column="37" lean-forward="true" selection-start-line="161" selection-start-column="37" selection-end-line="161" selection-end-column="37" />
+        <state relative-caret-position="530">
+          <caret line="160" column="63" lean-forward="true" selection-start-line="160" selection-start-column="63" selection-end-line="160" selection-end-column="63" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
